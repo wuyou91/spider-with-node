@@ -17,21 +17,21 @@ async function run (url) {
   const page = await browser.newPage();
 
   await page.goto(url);
-  await console.log('已经打开'+url)
+  console.log('已经打开'+url)
   const html = await page.$eval('body', e => e.innerHTML)
   await browser.close()
-  await console.log('关闭'+url+'成功')
+  console.log('关闭'+url+'成功')
   await getPageUrlLis(html)
-  await console.log('数据获取完成,开始写入。。。')
+  console.log('数据获取完成,开始写入。。。')
   fs.writeFileSync('./data/pageDetail.json', JSON.stringify(pageDetailInfo))
   fs.writeFileSync('./data/homeData.json', JSON.stringify(homeData))
-  await console.log('数据写入完成!!!')
+  console.log('数据写入完成!!!')
 };
 // 获取目标页面下的所有详情页的跳转链接
 async function getPageUrlLis (html){
-  const $ = await cheerio.load(html)
+  const $ = cheerio.load(html)
   let urlList = []
-  await $('#1022000 .m-itemList li .hd a').each(function () {
+  $('#1022000 .m-itemList li .hd a').each(function () {
     urlList.push(`http://you.163.com${$(this).attr('href')}`)
   })
   let list={
@@ -40,7 +40,7 @@ async function getPageUrlLis (html){
   fs.writeFileSync('./data/list.json', JSON.stringify(list))
 
   // urlList.length=10 // 可控制数目，注释掉则抓取全部
-  await console.log('成功获取所有详情页地址')
+  console.log('成功获取所有详情页地址')
   await goSubPage(urlList,1)
 };
 // 递归逐一跳转所有详情页面
@@ -49,11 +49,11 @@ async function goSubPage(list,n) {
     const browser = await puppeteer.launch()
     const page = await browser.newPage();
     await page.goto(list[n-1])
-    await console.log('进入到第'+n+'个详情页面')
+    console.log('进入到第'+n+'个详情页面')
     const html = await page.$eval('html', e => e.innerHTML)
-    await writeData(html, list[n-1]) // 把地址传过去，用于获取商品ID
+    writeData(html, list[n-1]) // 把地址传过去，用于获取商品ID
     await browser.close()
-    await console.log('关闭第'+n+'个详情页面')
+    console.log('关闭第'+n+'个详情页面')
     await goSubPage(list,n+1)
   }
 };
